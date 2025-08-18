@@ -2,4 +2,5 @@ myenv/
 
 __pycache__/
 
-app.py
+.env
+

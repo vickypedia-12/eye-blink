@@ -2,13 +2,13 @@ import mediapipe as mp
 import sys
 from PyQt5.QtWidgets import(
     QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QLineEdit, 
-    QPushButton, QHBoxLayout, QSizePolicy, QStackedWidget
+    QPushButton, QHBoxLayout, QSizePolicy, QStackedWidget, QCheckBox
 )
 from PyQt5.QtCore import Qt, QTimer, QThread, pyqtSignal, pyqtSlot
 import psutil
 import auth
 from blink_detector import BlinkDetector
-
+from datetime import datetime
 
 class LoginScreen(QWidget):
     def __init__(self, on_login):
@@ -40,12 +40,17 @@ class LoginScreen(QWidget):
         layout.addWidget(self.login_btn)
         self.setLayout(layout)
         self.setStyleSheet("background #111;")
+        self.consent_checkbox = QCheckBox("I consent to data collection (GDPR)")
+        self.consent_checkbox.setStyleSheet("color: white;")
+        layout.addWidget(self.consent_checkbox)
 
     def handle_login(self):
         username = self.user_input.text()
         password = self.pass_input.text()
-        if auth.authenticate(username, password):
-            self.on_login(username)
+        consent = self.consent_checkbox.isChecked()
+        token = auth.cloud_authenticate(username, password, )
+        if token:
+            self.on_login(username, token, consent)
         else:
             self.user_input.clear()
             self.pass_input.clear()
@@ -110,15 +115,18 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.login_screen)
         self.stack.addWidget(self.main_screen)
         self.setCentralWidget(self.stack)
+        self.token = None
 
-        self.blick_thread = None
+        self.blink_thread = None
         self.blink_count = 0
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_stats)
         self.timer.start(1000)
 
-    def login_success(self, username):
+    def login_success(self, username, token, consent):
+        self.token = token
+        self.consent = consent
         self.stack.setCurrentWidget(self.main_screen)
         self.start_blink_detection()
 
@@ -131,6 +139,12 @@ class MainWindow(QMainWindow):
     def update_blink_count(self, count):
         self.blink_count = count
         self.main_screen.blink_label.setText(f"Blinks: {self.blink_count}")
+        if self.token:
+            success = auth.post_blink_data(self.token, count)
+            if not success:
+                auth.cache_blink_data({"blink_count": count, "timestamp": datetime.now().isoformat()})
+            else:
+                auth.sync_cached_blinks(self.token)
 
 
     def update_stats(self):
