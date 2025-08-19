@@ -18,7 +18,7 @@ def cache_blink_data(blink_data):
         json.dump(cache, f)
 
 
-def sync_cached_blinks(token, api_url="http://127.0.0.1:8000/api/blink"):
+def sync_cached_blinks(token, api_url="http://fastapi-blink-app-env.eba-tabdyx3u.ap-south-1.elasticbeanstalk.com/api/blink"):
     import os, json
     CACHE_FILE = "blink_cache.json"
     if not os.path.exists(CACHE_FILE):
@@ -37,7 +37,7 @@ def sync_cached_blinks(token, api_url="http://127.0.0.1:8000/api/blink"):
         os.remove(CACHE_FILE)
     return success
 
-def cloud_authenticate(username, password, api_url="http://127.0.0.1:8000/api/auth/login"):
+def cloud_authenticate(username, password, api_url="http://fastapi-blink-app-env.eba-tabdyx3u.ap-south-1.elasticbeanstalk.com/api/auth/login"):
     data = {
         "username": username,
         "password": password
@@ -48,7 +48,7 @@ def cloud_authenticate(username, password, api_url="http://127.0.0.1:8000/api/au
     else:
         return None
     
-def post_blink_batch(token, data, api_url="http://127.0.0.1:8000/api/blink"):
+def post_blink_batch(token, data, api_url="http://fastapi-blink-app-env.eba-tabdyx3u.ap-south-1.elasticbeanstalk.com/api/blink"):
     headers = {"Authorization": f"Bearer {token}"}
     try:
         response = requests.post(api_url, json=data, headers=headers)

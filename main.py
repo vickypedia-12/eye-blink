@@ -122,6 +122,9 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.login_screen)
         self.stack.addWidget(self.main_screen)
         self.setCentralWidget(self.stack)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_stats)
+        self.timer.start(1000)
         self.token = None
         self.blink_thread = None
         self.blink_count = 0
