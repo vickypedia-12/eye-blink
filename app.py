@@ -9,7 +9,7 @@ from jose import JWTError, jwt
 from dotenv import load_dotenv
 import os
 from dotenv import load_dotenv
-
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
@@ -20,6 +20,13 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],    
+)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
