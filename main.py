@@ -9,7 +9,8 @@ import psutil
 import auth
 from blink_detector import BlinkDetector
 from datetime import datetime
-
+import json
+ 
 class LoginScreen(QWidget):
     def __init__(self, on_login):
         super().__init__()
@@ -48,7 +49,12 @@ class LoginScreen(QWidget):
         username = self.user_input.text()
         password = self.pass_input.text()
         consent = self.consent_checkbox.isChecked()
-        token = auth.cloud_authenticate(username, password, )
+        try:
+            token = auth.cloud_authenticate(username, password)
+        except Exception as e:
+            self.user_label.setText("No internet connection")
+            self.user_label.setStyleSheet("color: red;")
+            return
         if token:
             self.on_login(username, token, consent)
         else:
@@ -56,6 +62,7 @@ class LoginScreen(QWidget):
             self.pass_input.clear()
             self.user_label.setText("Username (Try Again)")
             self.user_label.setStyleSheet("color: red;")
+
 class MainScreen(QWidget):
     def __init__(self):
         super().__init__()
@@ -116,36 +123,76 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.main_screen)
         self.setCentralWidget(self.stack)
         self.token = None
-
         self.blink_thread = None
         self.blink_count = 0
+        self.last_blink_count = 0
+        self.current_minute_blinks = 0
+        self.batch_start_time = datetime.now()
+        self.batch_timer = QTimer()
+        self.batch_timer.timeout.connect(self.send_blink_batch)
+        self.batch_timer.start(15000)
+        self.token = load_token()
+        if self.token:
+            self.stack.setCurrentWidget(self.main_screen)
+            auth.sync_cached_blinks(self.token)
+            self.start_blink_detection()
+    
+    @pyqtSlot(int)
+    def update_blink_count(self,count):
+        self.blink_count = count
+        self.main_screen.blink_label.setText(f"blinks: {self.blink_count}")
+        if count > self.last_blink_count:
+            self.current_minute_blinks += (count - self.last_blink_count)
+        self.last_blink_count = count
 
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.update_stats)
-        self.timer.start(1000)
+    def send_blink_batch(self):
+        if self.token and self.current_minute_blinks > 0:
+            from_time =  self.batch_start_time.replace(microsecond=0).isoformat()
+            to_time = datetime.now().replace(microsecond=0).isoformat()
+            data = {
+                "blink_count": self.current_minute_blinks,
+                "from_timestamp": from_time,
+                "to_timestamp": to_time,
+            }
+            print("Sending batch:", data)
+            result = auth.post_blink_batch(self.token, data)
+            if result == "expired":
+                clear_token()
+                self.token = None
+                self.stack.setCurrentWidget(self.login_screen)
+                return
+            if not result:
+                auth.cache_blink_data(data)
+            else:
+                sync_result = auth.sync_cached_blinks(self.token)
+                if sync_result == "expired":
+                    clear_token()
+                    self.token = None
+                    self.stack.setCurrentWidget(self.login_screen)
+                    return
+            self.current_minute_blinks = 0
+            self.batch_start_time = datetime.now()
+        else:
+            self.batch_start_time = datetime.now()
+
 
     def login_success(self, username, token, consent):
         self.token = token
         self.consent = consent
+        save_token(token)
         self.stack.setCurrentWidget(self.main_screen)
+        sync_result = auth.sync_cached_blinks(self.token)
+        if sync_result == "expired":
+            clear_token()
+            self.token = None
+            self.stack.setCurrentWidget(self.login_screen)
+            return
         self.start_blink_detection()
 
     def start_blink_detection(self):
         self.blink_thread = BlinkThread()
         self.blink_thread.blink_count_signal.connect(self.update_blink_count)
         self.blink_thread.start()
-
-    @pyqtSlot(int)
-    def update_blink_count(self, count):
-        self.blink_count = count
-        self.main_screen.blink_label.setText(f"Blinks: {self.blink_count}")
-        if self.token:
-            success = auth.post_blink_data(self.token, count)
-            if not success:
-                auth.cache_blink_data({"blink_count": count, "timestamp": datetime.now().isoformat()})
-            else:
-                auth.sync_cached_blinks(self.token)
-
 
     def update_stats(self):
         cpu = psutil.cpu_percent()
@@ -160,7 +207,24 @@ class MainWindow(QMainWindow):
             self.blink_thread.wait()
         event.accept()
     
+def save_token(token):
+    with open("token_cache.json", "w") as f:
+        json.dump({"token": token}, f)
 
+def load_token():
+    try:
+        with open("token_cache.json", "r") as f:
+            return json.load(f).get("token")
+    except Exception:
+        return None 
+    
+def clear_token():
+    import os
+    try:
+        os.remove("token_cache.json")
+    except Exception:
+        pass
+    
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()

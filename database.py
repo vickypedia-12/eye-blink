@@ -28,7 +28,8 @@ class BlinkData(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     blink_count = Column(Integer, nullable=False)
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    from_timestamp = Column(DateTime, nullable=False)
+    to_timestamp = Column(DateTime, nullable=False)
     user = relationship("User", back_populates="blinks")
 
 

@@ -19,17 +19,23 @@ def cache_blink_data(blink_data):
 
 
 def sync_cached_blinks(token, api_url="http://127.0.0.1:8000/api/blink"):
+    import os, json
+    CACHE_FILE = "blink_cache.json"
     if not os.path.exists(CACHE_FILE):
-        return
+        return True
     with open(CACHE_FILE, "r") as f:
         cache = json.load(f)
     success = True
     for data in cache:
-        if not post_blink_data(token, data["blink_count"], api_url):
+        result = post_blink_batch(token, data, api_url)
+        if result == "expired":
+            return "expired"
+        if not result:
             success = False
             break
     if success:
         os.remove(CACHE_FILE)
+    return success
 
 def cloud_authenticate(username, password, api_url="http://127.0.0.1:8000/api/auth/login"):
     data = {
@@ -42,14 +48,13 @@ def cloud_authenticate(username, password, api_url="http://127.0.0.1:8000/api/au
     else:
         return None
     
-def post_blink_data(token, blink_count, api_url="http://127.0.0.1:8000/api/blink"):
+def post_blink_batch(token, data, api_url="http://127.0.0.1:8000/api/blink"):
     headers = {"Authorization": f"Bearer {token}"}
-    data = {
-        "blink_count": blink_count,
-        "timestamp": datetime.now().isoformat()
-    }
     try:
         response = requests.post(api_url, json=data, headers=headers)
+        if response.status_code == 401 or response.status_code == 403:
+            return "expired"
+        print("POST /api/blink status:", response.status_code, response.text)
         return response.status_code == 200
     except Exception as e:
         print("Failed to sync blink data:", e)

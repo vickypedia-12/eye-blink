@@ -42,8 +42,8 @@ class UserOut(BaseModel):
 
 class blinkDataIn(BaseModel):
     blink_count: int
-    timestamp: str
-
+    from_timestamp: str
+    to_timestamp: str
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -115,7 +115,12 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
 @app.post("/api/blink")
 def post_blink(data: blinkDataIn, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    blink = BlinkData(user_id = user.id, blink_count=data.blink_count, timestamp=datetime.now().isoformat())
+    blink = BlinkData(
+        user_id=user.id,
+        blink_count=data.blink_count,
+        from_timestamp=data.from_timestamp,
+        to_timestamp=data.to_timestamp
+    )
     db.add(blink)
     db.commit()
     return {"status": "ok"}
