@@ -20,6 +20,8 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 app = FastAPI()
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -142,3 +144,7 @@ def get_blinks(user_id: int, user: User = Depends(get_current_user), db: Session
         raise HTTPException(status_code=403, detail="Not authorized")
     blinks = db.query(BlinkData).filter(BlinkData.user_id == user_id).all()
     return blinks
+
+
+
+application = app
