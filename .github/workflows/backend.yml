@@ -29,6 +29,9 @@ jobs:
 
       - name: Zip backend
         run: zip -r backend.zip . -x '*.git*'
+        
+      - name: Move zip to root
+        run: mv backend.zip ../backend.zip
 
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21
