@@ -1,4 +1,5 @@
 import mediapipe as mp
+_ = mp.solutions.hands.Hands
 import sys
 from PyQt5.QtWidgets import(
     QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QLineEdit, 

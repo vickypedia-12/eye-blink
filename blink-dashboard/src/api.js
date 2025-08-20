@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // const API_URL = "http://127.0.0.1:8000/api";
-const API_URL = "http://fastapi-blink-app-env.eba-tabdyx3u.ap-south-1.elasticbeanstalk.com/api";
+const API_URL = "https://blink-backend.vickypedia.tech/api";
 
 export const register = (user) =>
   axios.post(`${API_URL}/auth/register`, user);
