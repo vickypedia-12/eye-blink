@@ -1,7 +1,5 @@
 myenv/
-
 __pycache__/
-
 .env
-
 build/
+dist

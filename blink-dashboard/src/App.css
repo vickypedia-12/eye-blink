@@ -33,7 +33,7 @@ body {
 .bubble:nth-child(1) {
   width: 80px;
   height: 80px;
-  background: #000000;
+  background: #1A237E;
   left: 10%;
   top: 20%;
   animation-delay: 0s;
@@ -43,7 +43,7 @@ body {
 .bubble:nth-child(2) {
   width: 60px;
   height: 60px;
-  background: #495057;
+  background: #1565C0;
   left: 20%;
   top: 60%;
   animation-delay: 2s;
@@ -53,7 +53,7 @@ body {
 .bubble:nth-child(3) {
   width: 100px;
   height: 100px;
-  background: #212529;
+  background: #00838F;
   left: 35%;
   top: 80%;
   animation-delay: 4s;
@@ -63,7 +63,7 @@ body {
 .bubble:nth-child(4) {
   width: 40px;
   height: 40px;
-  background: #6c757d;
+  background: #388E3C;
   left: 50%;
   top: 33%;
   animation-delay: 6s;
@@ -73,7 +73,7 @@ body {
 .bubble:nth-child(5) {
   width: 120px;
   height: 120px;
-  background: #343a40;
+  background: #F9A825;
   left: 75%;
   top: 70%;
   animation-delay: 8s;
@@ -83,7 +83,7 @@ body {
 .bubble:nth-child(6) {
   width: 70px;
   height: 70px;
-  background: #000000;
+  background: #D84315;
   left: 80%;
   top: 40%;
   animation-delay: 10s;
@@ -93,7 +93,7 @@ body {
 .bubble:nth-child(7) {
   width: 50px;
   height: 50px;
-  background: #495057;
+  background: #8E24AA;
   left: 35%;
   top: 10%;
   animation-delay: 12s;
@@ -103,7 +103,7 @@ body {
 .bubble:nth-child(8) {
   width: 90px;
   height: 90px;
-  background: #212529;
+  background: #C62828;
   left: 75%;
   top: 15%;
   animation-delay: 14s;

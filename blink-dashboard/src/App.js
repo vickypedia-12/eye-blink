@@ -1,18 +1,32 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Register from "./components/Register";
 import Login from "./components/Login";
 import BlinkData from "./components/BlinkData";
 import "./App.css";
+
 
 function App() {
   const [token, setToken] = useState(null);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
+  useEffect(() => {
+      const savedToken = localStorage.getItem("token");
+      if(savedToken){
+        setToken(savedToken);
+      }
+    }, [])
+
   const handleLoginSuccess = (token) => {
     setToken(token);
+    localStorage.setItem("token", token);
     setShowLoginModal(false);
   };
+
+  const handleLogout = () =>{
+    setToken(null);
+    localStorage.removeItem("token");
+  }
 
   const handleRegisterSuccess = () => {
     setShowRegisterModal(false);
@@ -26,7 +40,7 @@ function App() {
 
   if (token) {
     return (
-        <BlinkData token={token} onLogout={() => setToken(null)} />
+        <BlinkData token={token} onLogout={handleLogout} />
 
     );
   }
@@ -49,7 +63,10 @@ function App() {
         {/* Hero Section */}
         <div className="hero">
           <div className="hero-content">
-            <h1>👁️ Blink Tracker</h1>
+            <h1>
+              <img src="/image.png" alt="Blink Tracker Logo" style={{ height: "2em", verticalAlign: "middle", marginRight: "0.5em" }} />
+              Blink Tracker
+            </h1>
             <p>Track your eye blinks and monitor your digital wellness</p>
             <div className="hero-buttons">
               <button 
