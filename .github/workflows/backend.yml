@@ -18,13 +18,16 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install dependencies
         run: pip install -r requirements.txt
 
       - name: Run tests
         run: pytest tests/
+
+      - name: Zip backend
+        run: zip -r backend.zip . -x '*.git*'
 
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21
@@ -36,6 +39,3 @@ jobs:
           region: ap-south-1
           version_label: ${{ github.sha }}
           deployment_package: backend.zip
-
-      - name: Zip backend
-        run: zip -r backend.zip . -x '*.git*'

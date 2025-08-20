@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - 'blink-dashboard/**'
-      - '.github/workflows/frontend.yml'
+      - '.github/workflows/blink-dashboard.yml'
 
 jobs:
   deploy:
