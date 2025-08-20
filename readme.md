@@ -219,7 +219,7 @@ The project uses GitHub Actions for continuous integration and deployment:
 ### Windows Desktop Application
 1. Download the latest `.exe` file from the releases page
 2. Run the installer
-3. Launch the WaW Eye Tracker from your Start Menu
+3. Launch the Eye Tracker from your Start Menu
 
 ### Development Setup
 1. Clone the repository
