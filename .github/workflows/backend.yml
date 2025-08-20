@@ -28,7 +28,7 @@ jobs:
         run: pytest tests/
 
       - name: Zip backend
-        run: zip -r backend.zip . -x '*.git*'
+        run: zip -r ../backend.zip . -x '*.git*'
         
       - name: Move zip to root
         run: mv backend.zip ../backend.zip
@@ -42,4 +42,4 @@ jobs:
           environment_name: fastapi-blink-app-env
           region: ap-south-1
           version_label: ${{ github.sha }}
-          deployment_package: ../backend.zip
+          deployment_package: backend.zip
