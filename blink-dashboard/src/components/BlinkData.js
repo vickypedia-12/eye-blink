@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { fetchBlinks, fetchMe } from "../api";
+import { Bar, Line } from "react-chartjs-2";
+import { Chart, CategoryScale, LinearScale, BarElement,  PointElement, LineElement, TimeScale, Tooltip, Legend } from "chart.js";
+import "chartjs-adapter-date-fns";
 
+Chart.register(CategoryScale, LinearScale, BarElement,  PointElement, LineElement, TimeScale, Tooltip, Legend);
 export default function BlinkData({ token, onLogout }) {
   const [blinks, setBlinks] = useState([]);
   const [user, setUser] = useState(null);
@@ -63,7 +67,61 @@ export default function BlinkData({ token, onLogout }) {
           </div>
         </div>
       </div>
-
+      <div className="analytics-section">
+        <div className="analytics-card">
+          <h2>Blinks per Session</h2>
+          <Bar
+            data={{
+              labels: blinks.map((b, i) => `Session ${i + 1}`),
+              datasets: [
+                {
+                  label: "Blinks",
+                  data: blinks.map((b) => b.blink_count),
+                  backgroundColor: "#1A237E",
+                },
+              ],
+            }}
+            options={{
+              responsive: false,
+              plugins: { legend: { display: false } },
+              scales: { y: { beginAtZero: true } },
+            }}
+            width={450}
+            height={220}
+          />
+        </div>
+        <div className="analytics-card">
+          <h2>Blinks Over Time</h2>
+          <Line
+            data={{
+              labels: blinks.map((b) => new Date(b.from_timestamp)),
+              datasets: [
+                {
+                  label: "Blinks",
+                  data: blinks.map((b) => b.blink_count),
+                  borderColor: "#00838F",
+                  backgroundColor: "rgba(0,131,143,0.2)",
+                  tension: 0.3,
+                },
+              ],
+            }}
+            options={{
+              responsive: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                x: {
+                  type: "time",
+                  time: { unit: "day" },
+                  title: { display: true, text: "Date" },
+                },
+                y: { beginAtZero: true, title: { display: true, text: "Blinks" } },
+              },
+            }}
+            width={450}
+            height={220}
+          />
+        </div>
+      </div>
       <div className="blink-table-container">
         <h2>Session History</h2>
         {blinks.length === 0 ? (
@@ -81,16 +139,18 @@ export default function BlinkData({ token, onLogout }) {
               </tr>
             </thead>
             <tbody>
-              {blinks.map((b) => (
-                <tr key={b.id}>
-                  <td className="blink-count">{b.blink_count}</td>
-                  <td>{new Date(b.from_timestamp).toLocaleString()}</td>
-                  <td>{new Date(b.to_timestamp).toLocaleString()}</td>
-                  <td>
-                    {Math.round((new Date(b.to_timestamp) - new Date(b.from_timestamp)) / 1000)}s
-                  </td>
-                </tr>
-              ))}
+              {[...blinks]
+                .sort((a, b) => new Date(b.from_timestamp) - new Date(a.from_timestamp))
+                .map((b) => (
+                  <tr key={b.id}>
+                    <td className="blink-count">{b.blink_count}</td>
+                    <td>{new Date(b.from_timestamp).toLocaleString()}</td>
+                    <td>{new Date(b.to_timestamp).toLocaleString()}</td>
+                    <td>
+                      {Math.round((new Date(b.to_timestamp) - new Date(b.from_timestamp)) / 1000)}s
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         )}

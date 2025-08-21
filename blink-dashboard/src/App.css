@@ -132,6 +132,40 @@ body {
     opacity: 0.6;
   }
 }
+/* Add to App.css or BlinkData.css */
+.analytics-section {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.analytics-card {
+  width: 500px;
+  height: 300px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 16px 12px 8px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.analytics-card h2 {
+  font-size: 1.1em;
+  text-align: center;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+  color: #222;
+}
+
+.analytics-card canvas {
+  /* Ensures chart fits inside the card */
+  max-width: 450px !important;
+  max-height: 220px !important;
+}
 
 /* Homepage Styles */
 .homepage {

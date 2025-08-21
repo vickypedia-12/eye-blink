@@ -99,13 +99,13 @@ Table: blink_data
 #### Technologies
 - **Framework**: React
 - **Hosting**: Vercel
-- **Data Visualization**: Chart.js [TBD]
+- **Data Visualization**: Chart.js 
 - **State Management**: React Context API
 - **Styling**: CSS with responsive design
 
 #### Features
 - **Secure Authentication**: JWT-based login system
-- **Data Visualization**: Charts showing blink patterns over time [TBD]
+- **Data Visualization**: Charts showing blink patterns over time
 - **Responsive Design**: Works across desktop and mobile devices
 - **Read-Only Access**: Ensures data integrity
 - **Session Management**: Automatic token refresh and secure logout
