@@ -82,6 +82,24 @@ function App() {
                 Already have an account? Login
               </button>
             </div>
+            <div style={{ paddingTop: "2em"}}>
+              <a
+                href="https://github.com/vickypedia-12/eye-blink/releases/latest/download/main.exe"
+                className="btn btn-primary"
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.7em", // space between logo and text
+                  justifyContent: "center"
+                }}
+              >
+                <img src="/windows-logo.png" alt="Windows" style={{ width: 30, height: 30 }} />
+                <span>Windows App</span>
+              </a>
+            </div>
           </div>
         </div>
 
