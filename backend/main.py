@@ -3,15 +3,17 @@ _ = mp.solutions.hands.Hands
 import sys
 from PyQt5.QtWidgets import(
     QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QLineEdit, 
-    QPushButton, QHBoxLayout, QSizePolicy, QStackedWidget, QCheckBox, 
+    QPushButton, QHBoxLayout, QSizePolicy, QStackedWidget, QCheckBox, QSystemTrayIcon 
 )
 from PyQt5.QtCore import Qt, QTimer, QThread, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QIcon
 import psutil
 import auth
 from blink_detector import BlinkDetector
 from datetime import datetime
 import json
+from plyer import notification
+
  
 class LoginScreen(QWidget):
     def __init__(self, on_login):
@@ -167,6 +169,10 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Blink Tracker")
+        self.setWindowIcon(QIcon("Image.ico"))
+        self.tray_icon = QSystemTrayIcon(QIcon("image.ico"), self)
+        self.tray_icon.setToolTip("Blink Tracker")
+        self.tray_icon.show()
         self.setGeometry(100, 100, 320, 200)
         self.setStyleSheet("background: #111;")
         self.stack = QStackedWidget()
@@ -192,6 +198,7 @@ class MainWindow(QMainWindow):
             self.stack.setCurrentWidget(self.main_screen)
             auth.sync_cached_blinks(self.token)
             self.start_blink_detection()
+        
     
     @pyqtSlot(int)
     def update_blink_count(self,count):
@@ -200,6 +207,14 @@ class MainWindow(QMainWindow):
         if count > self.last_blink_count:
             self.current_minute_blinks += (count - self.last_blink_count)
         self.last_blink_count = count
+    def show_notification(self, blink_count):
+        notification.notify(
+            title='Blink Reminder',
+            message=f'Your Blink Count is low ({blink_count} in the last minute). Remember to blink often',
+            app_name="Blink Tracker",
+            app_icon="image.ico",
+            timeout=5,
+        )
 
     def send_blink_batch(self):
         if self.token and self.current_minute_blinks > 0:
@@ -211,6 +226,12 @@ class MainWindow(QMainWindow):
                 "to_timestamp": to_time,
             }
             print("Sending batch:", data)
+
+            BLINK_THRESHOLD=12
+            if self.current_minute_blinks < BLINK_THRESHOLD:
+                print("less blink detected")
+                self.show_notification(self.current_minute_blinks)
+
             result = auth.post_blink_batch(self.token, data)
             if result == "expired":
                 clear_token()
